@@ -1,14 +1,20 @@
 package com.example.cheaper_price;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,10 +34,13 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager= null;
     private long exitTime = 0;
     private ArrayAdapter<String> adapter;
-    private String[] saveItem;
     private LinearLayout layout;
     private TextView txt_empty;
     private SQLiteDatabase db;
+    private ArrayList<String> url;
+
+    private AlertDialog alert = null;
+    private AlertDialog.Builder builder = null;
 
     private static final String DB_FILE = "save_list.db", DB_TABLE = "list";
 
@@ -41,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mContext = MainActivity.this;
         init();
+        //db.close();
+
     }
 
     private void init() {
@@ -48,16 +59,69 @@ public class MainActivity extends AppCompatActivity {
         layout = (LinearLayout) findViewById(R.id.searchTitle);
         txt_empty = (TextView) findViewById(R.id.txt_empty);
         txt_empty.setText("暫無數據");
-        if (saveItem != null) {
-            adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, saveItem);
-        }
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         search1 = findViewById(R.id.search_button1);
         edt_search1 = findViewById(R.id.edt_search1);
         search1.setOnClickListener(listener);
+        initdb();
+        url = new ArrayList<>();
+        cursorthing();
         listView_item.setAdapter(adapter);
         listView_item.setEmptyView(txt_empty);
-        initdb();
+        listView_item.setOnItemClickListener(listViewlistener);
+        listView_item.setOnItemLongClickListener(deletelistviewlistener);
     }
+
+
+
+    private void cursorthing(){
+        adapter.clear();
+        Cursor cursor = db.rawQuery("SELECT _id, title, url, price FROM list", null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                adapter.add(cursor.getString(1) + "," + cursor.getString(3));
+                url.add(cursor.getString(2));
+            }
+        }
+        cursor.close();
+    }
+
+    private AdapterView.OnItemClickListener listViewlistener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+           if (url != null) {
+               Uri intenturl = Uri.parse("https://biggo.com.tw"+url.get(i));
+               Intent intent = new Intent(Intent.ACTION_VIEW, intenturl);
+               startActivity(intent);
+           }
+        }
+    };
+
+    private AdapterView.OnItemLongClickListener deletelistviewlistener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+            alert = null;
+            builder = new AlertDialog.Builder(mContext);
+            alert = builder.setTitle("確認")
+                    .setMessage("確認刪除這筆資料")
+                    .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            db.execSQL(" DELETE FROM list WHERE _id = "+(position+1));
+                            cursorthing();
+                            adapter.notifyDataSetChanged();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            alert.dismiss();
+                        }
+                    }).create();
+            alert.show();
+            return true;
+        }
+    };
 
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override
@@ -91,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             fragmentManager.popBackStack();
+            cursorthing();
+            adapter.notifyDataSetChanged();
             listView_item.setVisibility(View.VISIBLE);
             layout.setVisibility(View.VISIBLE);
         }
@@ -105,8 +171,6 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
 
         }
-
-        db.close();
     }
 
 }

@@ -83,8 +83,6 @@ public class NewSearch extends Fragment {
                     myBaseAdapter = new MyBaseAdapter(sells, getContext());
                     listView_newSearch_Item.addFooterView(footView);
                     listView_newSearch_Item.setAdapter(myBaseAdapter);
-
-
                     break;
                 case 2:
                     Toast.makeText(getContext(), "這是最一頁了", Toast.LENGTH_SHORT).show();

@@ -93,11 +93,10 @@ public class MyBaseAdapter extends BaseAdapter {
                 String url = mSell.get(index).getArticleUrl();
                 db = mContext.openOrCreateDatabase(DB_FILE, mContext.MODE_PRIVATE, null);
                 ContentValues newRow = new ContentValues();
-                newRow.put("tablenumber", title);
-                newRow.put("mainMeal", price);
-                newRow.put("secondMeal", url);
+                newRow.put("title", title);
+                newRow.put("price", price);
+                newRow.put("url", url);
                 db.insert(DB_TABLE, null, newRow);
-
             }
         });
         viewHolder.marketname.setText(mSell.get(index).getAuthor());
