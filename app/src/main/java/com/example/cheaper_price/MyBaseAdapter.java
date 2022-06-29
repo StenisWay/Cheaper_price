@@ -9,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,7 +23,6 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 public class MyBaseAdapter extends BaseAdapter {
@@ -97,6 +94,7 @@ public class MyBaseAdapter extends BaseAdapter {
                 newRow.put("price", price);
                 newRow.put("url", url);
                 db.insert(DB_TABLE, null, newRow);
+                Toast.makeText(mContext, "成功儲存了!", Toast.LENGTH_SHORT).show();
             }
         });
         viewHolder.marketname.setText(mSell.get(index).getAuthor());

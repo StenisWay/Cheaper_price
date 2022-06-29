@@ -11,9 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -23,7 +21,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView txt_empty;
     private SQLiteDatabase db;
     private ArrayList<String> url;
+    private FragmentTransaction fragmentTransaction = null;
+    private ArrayList<String> id;
 
     private AlertDialog alert = null;
     private AlertDialog.Builder builder = null;
@@ -50,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mContext = MainActivity.this;
         init();
-        //db.close();
-
     }
 
     private void init() {
@@ -64,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         edt_search1 = findViewById(R.id.edt_search1);
         search1.setOnClickListener(listener);
         initdb();
+        id = new ArrayList<>();
         url = new ArrayList<>();
         cursorthing();
         listView_item.setAdapter(adapter);
@@ -79,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = db.rawQuery("SELECT _id, title, url, price FROM list", null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                adapter.add(cursor.getString(1) + "," + cursor.getString(3));
+                adapter.add(cursor.getString(1) + "--------" + cursor.getString(3)+"元");
+                id.add(cursor.getString(0));
                 url.add(cursor.getString(2));
             }
         }
@@ -107,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            db.execSQL(" DELETE FROM list WHERE _id = "+(position+1));
+                            db.execSQL(" DELETE FROM list WHERE _id = "+id.get(position).toString());
+                            id.remove(position);
                             cursorthing();
                             adapter.notifyDataSetChanged();
                         }
@@ -126,13 +126,14 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            fragmentManager= getSupportFragmentManager();
             String search = edt_search1.getText().toString();
             Bundle bundle = new Bundle();
             bundle.putString("search", search);
             NewSearch newSearch = new NewSearch();
             newSearch.setArguments(bundle);
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.replace(android.R.id.content, newSearch);
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -173,4 +174,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        db.close();
+    }
 }
