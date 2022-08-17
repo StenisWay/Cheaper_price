@@ -32,10 +32,10 @@ public class MyBaseAdapter extends BaseAdapter {
     private SQLiteDatabase db;
     private static final String DB_FILE = "save_list.db", DB_TABLE = "list";
 
-    public MyBaseAdapter(List<Sell> mSell,Context mContext){
-        this.mSell = mSell;
-        this.mContext = mContext;
-    }
+        public MyBaseAdapter(List<Sell> mSell,Context mContext){
+            this.mSell = mSell;
+            this.mContext = mContext;
+        }
 
     @Override
     public int getCount() {
@@ -123,7 +123,7 @@ public class MyBaseAdapter extends BaseAdapter {
 
     private class ViewHolder{
         TextView list_name, list_price, marketname;
-        MyImageView list_picture;
+        ImageView list_picture;
         MyButton list_button;
     }
 

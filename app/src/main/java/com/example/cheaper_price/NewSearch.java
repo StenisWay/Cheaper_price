@@ -104,7 +104,7 @@ public class NewSearch extends Fragment {
               lowprice = edt_lowest.getText().toString();
               highprice = edt_highiest.getText().toString();
               searchitem = edt_search2.getText().toString();
-              url = "https://biggo.com.tw/s/"+searchitem+"/?price="+lowprice+"-"+highprice+"&sort=lp&p="+page;
+              url = "https://biggo.com.tw/s/"+searchitem+"/?price="+lowprice+"-"+highprice+"&sort=lp&p="+page + "&view=list";
               Search();
         }
     };
