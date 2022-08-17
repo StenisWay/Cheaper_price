@@ -22,8 +22,8 @@ public class GetData {
 
         Document document = Jsoup.parse(html);
         Elements elements = document
-                .select("div[class=row m-0 w-100]")
-                .select("div[class=col-12 product-row ]");
+                .select("div[class=product-row ]")
+                .select("div[class=d-flex w100]");
 
         Log.i(TAG, "spiderArticle: elements " +elements.html());
 
